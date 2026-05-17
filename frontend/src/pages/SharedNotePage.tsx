@@ -21,8 +21,6 @@ export default function SharedNotePage({ getSharedNote }: Props) {
       getSharedNote(shareId).then(n => {
         setNote(n || null);
       });
-    } else {
-      setLoading(false);
     }
   }, [shareId, getSharedNote]);
 
