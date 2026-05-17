@@ -199,7 +199,11 @@ export function useNotes(userId: string | undefined) {
       if (error) {
         console.error('Error fetching notes:', error);
       } else if (data) {
-        setNotes(data as Note[]);
+        const mapped = data.map((d: any) => ({
+          ...d,
+          userId: d.user_id, // Map database snake_case to frontend camelCase
+        }));
+        setNotes(mapped as Note[]);
       }
     };
     fetchNotes();
@@ -223,7 +227,9 @@ export function useNotes(userId: string | undefined) {
     
     setNotes((prev) => [note, ...prev]);
 
-    supabase.from('notes').insert(note).then(({ error }) => {
+    // Map frontend camelCase `userId` to database snake_case `user_id` and remove `userId` key
+    const { userId: _, ...dbNote } = note as any;
+    supabase.from('notes').insert({ ...dbNote, user_id: userId }).then(({ error }) => {
       if (error) console.error('Error creating note:', error);
     });
 
@@ -237,7 +243,14 @@ export function useNotes(userId: string | undefined) {
       prev.map((n) => (n.note_id === id ? { ...n, ...updatedFields } : n))
     );
 
-    supabase.from('notes').update(updatedFields).eq('note_id', id).then(({ error }) => {
+    // Map `userId` to `user_id` if present in updates (and remove camelCase `userId` key)
+    const { userId: updatedUserId, ...dbUpdates } = updatedFields as any;
+    const finalUpdates = { ...dbUpdates };
+    if (updatedUserId) {
+      finalUpdates.user_id = updatedUserId;
+    }
+
+    supabase.from('notes').update(finalUpdates).eq('note_id', id).then(({ error }) => {
       if (error) console.error('Error updating note:', error);
     });
   }, []);
@@ -346,7 +359,10 @@ export function useNotes(userId: string | undefined) {
       console.error('Error fetching shared note:', error);
       return undefined;
     }
-    return data as Note;
+    return {
+      ...data,
+      userId: data.user_id, // Map database snake_case to frontend camelCase
+    } as Note;
   }, [notes]);
 
   return {
