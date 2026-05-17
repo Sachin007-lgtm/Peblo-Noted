@@ -30,15 +30,15 @@ function AuthenticatedApp({ user, onLogout }: { user: User; onLogout: () => void
         {/* Authenticated layout */}
         <Route element={<Layout user={user} onLogout={onLogout} onCreateNote={handleCreateNote} />}>
           <Route path="/"              element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard"     element={<DashboardPage   user={user} notes={notesStore.notes} aiUsageCount={notesStore.aiUsageCount} onCreateNote={handleCreateNote} />} />
-          <Route path="/notes"         element={<MyNotesPage     user={user} notes={notesStore.notes} onCreateNote={handleCreateNote} onDeleteNote={notesStore.deleteNote} onTogglePin={notesStore.togglePin} onArchiveNote={notesStore.archiveNote} />} />
+          <Route path="/dashboard"     element={<DashboardPage   user={user} notes={notesStore.notes} />} />
+          <Route path="/notes"         element={<MyNotesPage     notes={notesStore.notes} onCreateNote={handleCreateNote} onDeleteNote={notesStore.deleteNote} onTogglePin={notesStore.togglePin} onArchiveNote={notesStore.archiveNote} />} />
           <Route path="/editor/:id"    element={<EditorPage />} />
           <Route path="/search"        element={<SearchPage      notes={notesStore.notes} />} />
           <Route path="/insights"      element={<InsightsPage    notes={notesStore.notes} aiUsageCount={notesStore.aiUsageCount} />} />
           <Route path="/settings"      element={<InsightsPage    notes={notesStore.notes} aiUsageCount={notesStore.aiUsageCount} />} />
-          <Route path="/trash"         element={<MyNotesPage     user={user} notes={notesStore.notes.filter(n => n.archived)} onDeleteNote={notesStore.deleteNote} />} />
-          <Route path="/notifications" element={<DashboardPage   user={user} notes={notesStore.notes} aiUsageCount={notesStore.aiUsageCount} />} />
-          <Route path="/tips"          element={<DashboardPage   user={user} notes={notesStore.notes} aiUsageCount={notesStore.aiUsageCount} />} />
+          <Route path="/trash"         element={<MyNotesPage     notes={notesStore.notes.filter(n => n.archived)} onDeleteNote={notesStore.deleteNote} />} />
+          <Route path="/notifications" element={<DashboardPage   user={user} notes={notesStore.notes} />} />
+          <Route path="/tips"          element={<DashboardPage   user={user} notes={notesStore.notes} />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/dashboard" replace />} />

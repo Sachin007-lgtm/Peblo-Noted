@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { useInsights } from '../store/useStore';
 import type { Note } from '../types';
 import { useNavigate } from 'react-router-dom';
@@ -16,7 +16,6 @@ export default function InsightsPage({ notes, aiUsageCount }: Props) {
   const maxAct = Math.max(...weeklyActivity.map(d => d.count), 1);
   const notesWithAI = notes.filter(n => n.aiSummary).length;
   const shared = notes.filter(n => n.isPublic).length;
-  const pinned = notes.filter(n => n.pinned).length;
 
   // Category breakdown
   const catMap: Record<string, number> = {};

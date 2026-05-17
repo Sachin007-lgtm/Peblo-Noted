@@ -3,84 +3,11 @@ import type { Note, User, AISummary } from '../types';
 import { supabase } from '../lib/supabase';
 
 // ── Seed data ──────────────────────────────────────────────────────────────────
+/* 
 const SEED_NOTES: Note[] = [
-  {
-    note_id: 'NOTE_001',
-    title: 'Sprint Planning Notes',
-    content: `## Sprint 12 Planning\n\nAttended by: Sarah, Raj, Mike, Priya\n\nWe discussed the upcoming features for Q2. The main focus will be on improving the onboarding experience and integrating the AI summarization pipeline into the main product workflow.\n\n### Key Decisions\n- Move design review to Wednesday\n- API structure needs a second pass before dev handoff\n- UI mockups due by Friday EOD\n\n### Open Questions\n- Should we support real-time collaboration in v1?\n- What's the fallback if the LLM is down?`,
-    tags: ['work', 'meeting', 'sprint'],
-    category: 'Work',
-    archived: false,
-    pinned: true,
-    isPublic: true,
-    shareId: 'share_abc123',
-    updatedAt: '2026-05-14T12:00:00Z',
-    createdAt: '2026-05-14T09:00:00Z',
-    userId: 'USR_001',
-    color: '#A8F5E0',
-    aiSummary: {
-      summary: 'Weekly sprint planning discussion covering Q2 feature priorities, focusing on onboarding improvements and AI summarization pipeline integration.',
-      action_items: ['Prepare UI mockups by Friday EOD', 'Review API structure before dev handoff', 'Move design review to Wednesday'],
-      suggested_title: 'Sprint 12 Planning — Q2 Priorities',
-      generatedAt: '2026-05-14T12:05:00Z',
-    },
-  },
-  {
-    note_id: 'NOTE_002',
-    title: 'Learning React Patterns',
-    content: `## Advanced React Patterns\n\nNotes from reading the React docs and community articles.\n\n### Compound Components\nAllows you to compose complex components from simpler parts while sharing internal state.\n\n### Render Props\nA technique for sharing code between React components using a prop whose value is a function.\n\n### Custom Hooks\nLet you extract component logic into reusable functions. They always start with "use".\n\n### Context + Reducer\nGreat for managing global state without a third-party library. Combine useContext with useReducer for predictable state updates.`,
-    tags: ['learning', 'react', 'frontend'],
-    category: 'Personal',
-    archived: false,
-    pinned: false,
-    isPublic: false,
-    updatedAt: '2026-05-13T16:30:00Z',
-    createdAt: '2026-05-12T10:00:00Z',
-    userId: 'USR_001',
-    color: '#D4A8FF',
-  },
-  {
-    note_id: 'NOTE_003',
-    title: 'Book List — Q2 2026',
-    content: `## Reading List\n\n### Currently Reading\n- Deep Work — Cal Newport\n\n### Up Next\n- The Pragmatic Programmer\n- Designing Data-Intensive Applications\n- A Philosophy of Software Design\n\n### Completed\n- Atomic Habits ✅\n- Zero to One ✅\n- The Lean Startup ✅`,
-    tags: ['books', 'personal', 'learning'],
-    category: 'Personal',
-    archived: false,
-    pinned: false,
-    isPublic: false,
-    updatedAt: '2026-05-11T08:00:00Z',
-    createdAt: '2026-05-01T08:00:00Z',
-    userId: 'USR_001',
-    color: '#FFE08A',
-  },
-  {
-    note_id: 'NOTE_004',
-    title: 'API Design Decisions',
-    content: `## REST vs GraphQL\n\nFor this project, we're going with REST for simplicity. Here are our endpoint conventions:\n\n- All endpoints return JSON\n- Auth via Bearer JWT tokens\n- Pagination uses cursor-based approach\n- Errors follow RFC 7807 (Problem Details)\n\n## Rate Limiting\nWe'll implement per-user rate limiting at the API gateway level, 100 req/min for free tier.`,
-    tags: ['work', 'backend', 'api'],
-    category: 'Work',
-    archived: false,
-    pinned: false,
-    isPublic: false,
-    updatedAt: '2026-05-10T14:00:00Z',
-    createdAt: '2026-05-09T11:00:00Z',
-    userId: 'USR_001',
-    color: '#A8E6FF',
-  },
-  {
-    note_id: 'NOTE_005',
-    title: 'Old Meeting Notes — March',
-    content: `March team sync — archived for reference.\n\nDiscussed Q1 retrospective and team restructuring.`,
-    tags: ['meeting', 'archived'],
-    category: 'Work',
-    archived: true,
-    pinned: false,
-    isPublic: false,
-    updatedAt: '2026-03-31T17:00:00Z',
-    createdAt: '2026-03-31T15:00:00Z',
-    userId: 'USR_001',
-  },
+  ...
 ];
+*/
 
 const SEED_USER: User = {
   id: 'USR_001',

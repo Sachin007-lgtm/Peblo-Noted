@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import type { User } from '../types';
 
@@ -8,13 +8,6 @@ interface LayoutProps {
   onCreateNote?: () => string;
 }
 
-const categoryColors: Record<string, string> = {
-  'To-Do':        'bg-blue-500',
-  'Project Plan': 'bg-purple-500',
-  'Meeting Brief':'bg-amber-500',
-  'Drawing Note': 'bg-pink-500',
-  'General':      'bg-gray-400',
-};
 
 export default function Layout({ user, onLogout, onCreateNote }: LayoutProps) {
   const navigate = useNavigate();

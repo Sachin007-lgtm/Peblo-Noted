@@ -1,9 +1,8 @@
-import React, { useState, useMemo } from 'react';
-import type { Note, User } from '../types';
+import { useState, useMemo } from 'react';
+import type { Note } from '../types';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 
 interface Props {
-  user: User;
   notes: Note[];
   onCreateNote?: () => string;
   onDeleteNote?: (id: string) => void;
@@ -35,7 +34,7 @@ function timeSince(dateStr: string) {
 type SortKey = 'updated' | 'created' | 'title';
 type FilterKey = 'all' | 'pinned' | 'shared' | 'ai';
 
-export default function MyNotesPage({ user, notes, onCreateNote, onDeleteNote, onTogglePin, onArchiveNote }: Props) {
+export default function MyNotesPage({ notes, onCreateNote, onDeleteNote, onTogglePin, onArchiveNote }: Props) {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();

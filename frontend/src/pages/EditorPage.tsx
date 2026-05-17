@@ -22,7 +22,7 @@ export default function EditorPage() {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiExpanded, setAiExpanded] = useState(true);
   const [shareOpen, setShareOpen] = useState(false);
-  const saveTimer = useRef<ReturnType<typeof setTimeout>>();
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
     if (note) {
@@ -74,9 +74,6 @@ export default function EditorPage() {
     setAiLoading(false);
   };
 
-  const shareUrl = note?.shareId
-    ? `${window.location.origin}/shared/${note.shareId}`
-    : null;
 
   const handleShare = () => {
     if (!id) return;

@@ -15,13 +15,11 @@ const CAT_COLORS: Record<string, { text: string; bg: string }> = {
 export default function SharedNotePage({ getSharedNote }: Props) {
   const { shareId } = useParams<{ shareId: string }>();
   const [note, setNote] = React.useState<Note | null>(null);
-  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     if (shareId) {
       getSharedNote(shareId).then(n => {
         setNote(n || null);
-        setLoading(false);
       });
     } else {
       setLoading(false);

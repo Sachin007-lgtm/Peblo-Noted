@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import type { Note } from '../types';
 import { useNavigate } from 'react-router-dom';
 

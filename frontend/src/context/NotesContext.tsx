@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from 'react';
-import { useNotes, useAuth } from '../store/useStore';
+import { useNotes } from '../store/useStore';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 type NotesStoreType = ReturnType<typeof useNotes>;

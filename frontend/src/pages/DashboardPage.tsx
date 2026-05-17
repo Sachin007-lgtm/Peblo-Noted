@@ -1,12 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import type { User, Note } from '../types';
 import { useNavigate } from 'react-router-dom';
 
 interface Props {
   user: User;
   notes: Note[];
-  aiUsageCount: number;
-  onCreateNote?: () => string;
 }
 
 const HERO_IMAGES = [
@@ -19,11 +17,6 @@ const HERO_IMAGES = [
   'https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=1200&q=80',
 ];
 
-const QUICK_TIPS = [
-  { icon: 'photo_camera', title: 'Scan with your camera', desc: 'Turn old notes into digital ones instantly.', color: '#e8f5e9', iconColor: '#4caf50' },
-  { icon: 'edit_note',    title: 'Draw your notes',       desc: 'Everything is about to be happening.', color: '#f3e8ff', iconColor: '#8b5cf6' },
-  { icon: 'folder_open',  title: 'Plan your projects',    desc: 'Easier to plan your projects visually.', color: '#fff8e1', iconColor: '#f59e0b' },
-];
 
 const CAT_COLORS: Record<string, { dot: string; text: string; bg: string }> = {
   'To-Do':         { dot: 'bg-blue-400',   text: 'text-blue-600',   bg: 'bg-blue-50'   },
@@ -43,7 +36,7 @@ function timeSince(dateStr: string) {
   return `${Math.floor(diff/86400)} days ago`;
 }
 
-export default function DashboardPage({ user, notes, aiUsageCount, onCreateNote }: Props) {
+export default function DashboardPage({ user, notes }: Props) {
   const navigate = useNavigate();
   const [imgIndex, setImgIndex] = useState(() => Math.floor(Math.random() * HERO_IMAGES.length));
   
@@ -51,8 +44,6 @@ export default function DashboardPage({ user, notes, aiUsageCount, onCreateNote 
     .filter(n => !n.archived)
     .sort((a,b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
     .slice(0, 6);
-  const pinnedNotes = notes.filter(n => n.pinned && !n.archived).slice(0, 3);
-  const quickNote   = notes.find(n => n.pinned && !n.archived);
 
   return (
     <div className="p-6 space-y-6 animate-fade-up">
