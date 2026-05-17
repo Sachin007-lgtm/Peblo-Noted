@@ -1,0 +1,631 @@
+.auth-page {
+  display: flex;
+  min-height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ─────────────────────────────────────────
+   Left image panel
+───────────────────────────────────────── */
+.auth-left {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  overflow: hidden;
+  transition: transform 0.6s cubic-bezier(0.8, 0, 0.2, 1);
+  transform: translateX(0);
+  z-index: 1;
+}
+
+.auth-left-image {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: url('/auth_bg.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-right: 3px solid var(--black);
+  transition: border 0.6s;
+  z-index: 0;
+}
+
+.auth-left-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--ink);
+  opacity: 0.6;
+  z-index: 0;
+  transition: opacity 0.5s ease;
+  mix-blend-mode: multiply;
+}
+
+@keyframes overlayPan {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.auth-left-bg-text {
+  position: absolute;
+  font-family: 'Anton', sans-serif;
+  font-size: 140px;
+  color: rgba(255,255,255,0.15);
+  user-select: none;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  z-index: 1;
+  transition: color 0.3s ease;
+}
+.auth-left-bg-text.top    { top: 20px;  left: 20px;  transform: rotate(-12deg); }
+.auth-left-bg-text.bottom { bottom: 20px; right: 20px; transform: rotate(12deg); }
+
+.auth-left-bg-text:hover {
+  color: rgba(255,255,255,0.3);
+}
+
+.auth-left-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  max-width: 380px;
+}
+
+.auth-hero {
+  font-size: clamp(60px, 10vw, 120px);
+  color: rgba(255,255,255,0.95);
+  text-transform: uppercase;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+  padding: 0 10px;
+  margin-left: -10px;
+  transition: all 0.3s ease;
+}
+
+.auth-hero:hover {
+  background: linear-gradient(135deg, var(--mint-dark) 0%, var(--mint) 50%, var(--surface-highest) 100%);
+  background-size: 200% 200%;
+  animation: overlayPan 4s ease infinite;
+  color: var(--ink);
+  text-shadow: 4px 4px 0 rgba(0,0,0,0.1);
+  transform: scale(1.02) rotate(-1deg);
+}
+
+.auth-badge {
+  background: var(--mint);
+  color: var(--ink);
+  font-family: 'Anton', sans-serif;
+  font-size: 16px;
+  padding: 6px 16px;
+  border: 3px solid var(--black);
+  box-shadow: 4px 4px 0 var(--black);
+  transform: rotate(-2deg);
+  letter-spacing: 0.04em;
+}
+
+.auth-tagline {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.9);
+  max-width: 320px;
+  line-height: 1.5;
+  padding: 8px 12px;
+  margin-left: -12px;
+  transition: all 0.3s ease;
+}
+
+.auth-tagline:hover {
+  background: linear-gradient(135deg, var(--surface-highest) 0%, var(--mint) 50%, var(--surface-dim) 100%);
+  background-size: 200% 200%;
+  animation: overlayPan 4s ease infinite;
+  color: var(--ink);
+  transform: scale(1.02) rotate(1deg);
+  border: 2px solid var(--black);
+  box-shadow: 4px 4px 0 var(--black);
+}
+
+/* ─────────────────────────────────────────
+   Right form panel
+───────────────────────────────────────── */
+.auth-right {
+  flex: 1;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 32px;
+  gap: 12px;
+  position: relative;
+  transition: transform 0.6s cubic-bezier(0.8, 0, 0.2, 1);
+  transform: translateX(0);
+  z-index: 2;
+  /* Subtle dot-grid texture for the creative desk feel */
+  background-image:
+    radial-gradient(circle, rgba(0,0,0,0.07) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+/* Signup mode slide */
+.auth-page.signup .auth-left  { transform: translateX(100%); }
+.auth-page.signup .auth-left-image {
+  border-right: none;
+  border-left: 3px solid var(--black);
+}
+.auth-page.signup .auth-right { transform: translateX(-100%); }
+
+
+/* ─────────────────────────────────────────
+   1. TACTILE LAYERING — "Collage / Pinned" effect
+───────────────────────────────────────── */
+
+/* Paper-grain texture overlay on the form card */
+.auth-form-card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--white);
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+
+  /* Layered paper grain via SVG noise */
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"),
+    linear-gradient(to bottom right, #ffffff, #fdfaf5);
+  background-blend-mode: multiply, normal;
+}
+
+/* Tape strip — top-left corner */
+.auth-form-card::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 32px;
+  width: 52px;
+  height: 22px;
+  background: rgba(255, 235, 150, 0.75);
+  border: 1px solid rgba(0,0,0,0.15);
+  transform: rotate(-3deg);
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  /* Cross-hatch tape texture */
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(0,0,0,0.04) 0px,
+    rgba(0,0,0,0.04) 1px,
+    transparent 1px,
+    transparent 5px
+  );
+}
+
+/* Tape strip — top-right corner */
+.auth-form-card::after {
+  content: '';
+  position: absolute;
+  top: -8px;
+  right: 40px;
+  width: 44px;
+  height: 18px;
+  background: rgba(200, 230, 255, 0.7);
+  border: 1px solid rgba(0,0,0,0.12);
+  transform: rotate(4deg);
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(0,0,0,0.04) 0px,
+    rgba(0,0,0,0.04) 1px,
+    transparent 1px,
+    transparent 5px
+  );
+}
+
+/* Header — slight rotation for "pinned paper" feel */
+.auth-form-header {
+  border-bottom: none; /* replaced by hand-drawn divider below */
+  padding-bottom: 10px;
+  position: relative;
+}
+
+/* "WELCOME BACK" title with a slight tilt */
+.auth-form-title {
+  font-size: 28px;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  margin-bottom: 4px;
+  display: inline-block;
+  transform: rotate(-0.8deg);
+  transform-origin: left center;
+}
+
+.auth-form-sub {
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  color: var(--ink-2);
+}
+
+/* Hand-drawn squiggle below header title */
+.auth-header-squiggle {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  overflow: visible;
+}
+
+
+/* ─────────────────────────────────────────
+   2. HAND-DRAWN ACCENTS
+───────────────────────────────────────── */
+
+/* Hand-drawn charcoal divider replacing the plain line */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+}
+
+/* Rough SVG squiggle lines replacing the straight dividers */
+.auth-divider-line {
+  flex: 1;
+  height: 12px;
+  background: none;
+  position: relative;
+  overflow: visible;
+}
+.auth-divider-line::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='6' viewBox='0 0 100 6'%3E%3Cpath d='M0 3 Q10 0 20 3 Q30 6 40 3 Q50 0 60 3 Q70 6 80 3 Q90 0 100 3' stroke='%23201b0d' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")
+    repeat-x center / 100px 6px;
+  transform: translateY(-50%);
+}
+
+/* Marker highlight behind "ENTER WORKSPACE" button text */
+.auth-submit {
+  width: 100%;
+  justify-content: center;
+  height: 44px;
+  font-size: 13px;
+  position: relative;
+}
+
+/* Hand-drawn arrow annotation on "START CREATING" switch link */
+.auth-switch {
+  text-align: center;
+  font-size: 14px;
+  color: var(--ink-2);
+  position: relative;
+}
+
+.auth-switch-btn {
+  background: none;
+  border: none;
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  cursor: pointer;
+  position: relative;
+  /* Marker highlight effect — rough yellow underline */
+  text-decoration: none;
+}
+
+.auth-switch-btn::before {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: -3px;
+  right: -3px;
+  height: 10px;
+  background: rgba(255, 220, 80, 0.55);
+  transform: rotate(-1deg) skewX(-3deg);
+  z-index: -1;
+  border-radius: 1px;
+  transition: background 0.2s;
+}
+.auth-switch-btn:hover::before { background: rgba(142, 244, 190, 0.65); }
+
+/* Hand-drawn arrow SVG to the left of the switch link */
+.auth-switch-arrow {
+  display: inline-block;
+  position: relative;
+  top: 2px;
+  margin-right: 4px;
+  opacity: 0.7;
+}
+
+
+/* ─────────────────────────────────────────
+   3. DEPTH — Heavy offset neo-brutalist focus shadows
+───────────────────────────────────────── */
+.zine-input {
+  /* Override global — heavier focus state handled here */
+}
+
+/* Input wrapper to contain the offset pop */
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field-group .zine-input {
+  transition:
+    box-shadow 0.15s cubic-bezier(0.34, 1.56, 0.64, 1),
+    transform   0.15s cubic-bezier(0.34, 1.56, 0.64, 1),
+    border-color 0.15s;
+}
+
+.field-group .zine-input:focus {
+  border-width: 3px;
+  border-color: var(--black);
+  box-shadow: 6px 6px 0 0 var(--black);
+  transform: translate(-2px, -2px);
+  outline: none;
+  background: #fffef8;
+}
+
+/* Social buttons focus / hover neo-brutalist shadow bump */
+.auth-social-grid .btn {
+  justify-content: center;
+  padding: 8px;
+  font-size: 11px;
+  transition:
+    transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+
+/* ─────────────────────────────────────────
+   4. INTERACTIVE MICRO-MOMENTS — Jitter + misregistration
+───────────────────────────────────────── */
+
+/* Jitter keyframe — quick shake on hover */
+@keyframes jitter {
+  0%   { transform: translate(0, 0) rotate(0deg); }
+  15%  { transform: translate(-1px, 1px) rotate(-0.3deg); }
+  30%  { transform: translate(1px, -1px) rotate(0.4deg); }
+  45%  { transform: translate(-1px, 0) rotate(-0.2deg); }
+  60%  { transform: translate(1px, 1px) rotate(0.3deg); }
+  75%  { transform: translate(-1px, -1px) rotate(-0.1deg); }
+  90%  { transform: translate(0, 1px) rotate(0.2deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+/* Screen-print misregistration — layered pseudo-element color bleed */
+@keyframes misreg {
+  0%   { text-shadow: 2px 0 0 rgba(255,0,150,0.3), -2px 0 0 rgba(0,200,255,0.3); }
+  33%  { text-shadow: -2px 1px 0 rgba(255,0,150,0.4), 2px -1px 0 rgba(0,200,255,0.4); }
+  66%  { text-shadow: 1px -2px 0 rgba(255,200,0,0.3), -1px 2px 0 rgba(120,0,255,0.3); }
+  100% { text-shadow: 2px 0 0 rgba(255,0,150,0.3), -2px 0 0 rgba(0,200,255,0.3); }
+}
+
+/* Input container jitter on hover */
+.field-group:hover .zine-input:not(:focus) {
+  animation: jitter 0.4s ease forwards;
+}
+
+/* Submit button misregistration + lift on hover */
+.auth-submit:hover:not(:disabled) {
+  animation: jitter 0.35s ease forwards;
+}
+.auth-submit:hover:not(:disabled) .btn-label,
+.auth-submit:not(:disabled):hover {
+  /* color-bleed shadow on the text */
+}
+
+/* "ENTER WORKSPACE" / "JOIN THE MESS" text misreg effect via pseudo */
+.auth-submit:not(:disabled)::before {
+  content: attr(data-label);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  color: var(--on-primary);
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.auth-submit:not(:disabled):hover::before {
+  opacity: 1;
+  animation: misreg 0.5s ease infinite;
+  /* Overlay a bleed shadow on the entire button text */
+  text-shadow: 2px 0 0 rgba(255,0,150,0.35), -2px 0 0 rgba(0,200,255,0.35);
+}
+
+/* Social button jitter */
+.auth-social-grid .btn:hover {
+  animation: jitter 0.4s ease forwards;
+}
+
+/* Badge on the left panel jitter for fun */
+.auth-badge:hover { animation: jitter 0.35s ease forwards; }
+
+/* Form card subtle lift on load via shadow animation */
+@keyframes cardDrop {
+  from {
+    transform: translateY(-6px) rotate(-0.5deg);
+    box-shadow: 12px 12px 0 0 var(--black);
+    opacity: 0.85;
+  }
+  to {
+    transform: none;
+    box-shadow: 8px 8px 0 0 var(--black);
+    opacity: 1;
+  }
+}
+.auth-form-card.animate-scale {
+  animation: cardDrop 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+
+/* ─────────────────────────────────────────
+   Remaining shared styles
+───────────────────────────────────────── */
+.field-label {
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink);
+  font-weight: 700;
+}
+.field-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.auth-forgot {
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: var(--primary);
+  text-decoration: none;
+}
+.auth-forgot:hover { text-decoration: underline; }
+
+.auth-checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+}
+.auth-checkbox {
+  width: 20px; height: 20px;
+  border: 2px solid var(--black);
+  border-radius: 0;
+  appearance: none;
+  background: var(--white);
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-top: 1px;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.auth-checkbox:hover {
+  box-shadow: 3px 3px 0 0 var(--black);
+  transform: translate(-1px, -1px);
+}
+.auth-checkbox:checked {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+.auth-checkbox:checked::after {
+  content: '✓';
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 13px;
+  width: 100%;
+  height: 100%;
+}
+
+.auth-error {
+  padding: 8px 12px;
+  background: var(--danger-cont);
+  border: 2px solid var(--danger);
+  color: var(--danger);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+}
+
+/* Auth fields stack */
+.auth-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Annotation sticky note */
+.auth-annotation {
+  position: relative;
+  background: var(--surface-highest);
+  padding: 12px 14px;
+  max-width: 280px;
+  transform: rotate(3deg);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  /* Paper grain on sticky too */
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E"),
+    linear-gradient(135deg, #ece2ca, #f7edd6);
+  background-blend-mode: multiply, normal;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.auth-annotation:hover { transform: rotate(1deg) translate(-2px, -3px); }
+
+.auth-annotation-icon { font-size: 18px; flex-shrink: 0; }
+.auth-annotation-text {
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+/* Small tape strip on annotation */
+.auth-annotation::before {
+  content: '';
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-2deg);
+  width: 38px;
+  height: 16px;
+  background: rgba(255, 235, 150, 0.7);
+  border: 1px solid rgba(0,0,0,0.12);
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(0,0,0,0.04) 0px,
+    rgba(0,0,0,0.04) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+}
+
+.auth-footer-links {
+  display: flex;
+  gap: 24px;
+  opacity: 0.6;
+}
+.auth-footer-links a:hover { opacity: 1; }
+
+.w-full { width: 100%; }
+
+/* ─────────────────────────────────────────
+   Social grid
+───────────────────────────────────────── */
+.auth-social-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+/* ─────────────────────────────────────────
+   Responsive
+───────────────────────────────────────── */
+@media (max-width: 768px) {
+  .auth-page { flex-direction: column; overflow: auto; }
+  .auth-left { display: none; }
+  .auth-right { transform: none !important; }
+}
