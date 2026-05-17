@@ -106,7 +106,8 @@ function saveToStorage<T>(key: string, value: T) {
 // ── Groq AI service ────────────────────────────────────────────────────────────
 export async function mockGenerateSummary(content: string, title: string): Promise<AISummary> {
   try {
-    const res = await fetch('http://localhost:3000/api/summarize', {
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+    const res = await fetch(`${backendUrl}/api/summarize`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title, content }),
