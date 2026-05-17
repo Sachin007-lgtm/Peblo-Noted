@@ -139,6 +139,7 @@ export async function mockGenerateSummary(content: string, title: string): Promi
     };
   } catch (err) {
     console.warn('Backend API failed, falling back to mock:', err);
+  }
 
   // ── Fallback mock ──
   return new Promise((resolve) => {
