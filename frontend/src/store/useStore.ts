@@ -159,7 +159,12 @@ export function useAuth() {
   }, []);
 
   const loginWithOAuth = useCallback(async (provider: 'google' | 'github') => {
-    const { error } = await supabase.auth.signInWithOAuth({ provider });
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: window.location.origin,
+      }
+    });
     if (error) {
       console.error(`${provider} login error:`, error.message);
     }
