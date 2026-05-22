@@ -68,6 +68,7 @@ export default function MeetingRecorder() {
   const [errorMsg, setErrorMsg] = useState('');
   const [result, setResult] = useState<TranscribeResult | null>(null);
   const [successNote, setSuccessNote] = useState<string | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -152,6 +153,9 @@ export default function MeetingRecorder() {
           return;
         }
 
+        const url = URL.createObjectURL(blob);
+        setAudioUrl(url);
+
         const base64 = await blobToBase64(blob);
         const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
 
@@ -216,7 +220,9 @@ export default function MeetingRecorder() {
     setElapsed(0);
     setErrorMsg('');
     setSuccessNote(null);
-  }, []);
+    if (audioUrl) URL.revokeObjectURL(audioUrl);
+    setAudioUrl(null);
+  }, [audioUrl]);
 
   // ── Render Trigger Button ──
   const triggerButton = (
@@ -384,6 +390,15 @@ export default function MeetingRecorder() {
                 className="rounded-2xl p-4 mb-4"
                 style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
               >
+                {audioUrl && (
+                  <div className="mb-4">
+                    <p className="text-[11px] font-semibold uppercase tracking-widest mb-1.5" style={{ color: 'rgba(196,181,253,0.5)' }}>
+                      Playback Test (Hear what was recorded)
+                    </p>
+                    <audio src={audioUrl} controls className="w-full h-8" />
+                  </div>
+                )}
+
                 <p className="text-[11px] font-semibold uppercase tracking-widest mb-1.5" style={{ color: 'rgba(196,181,253,0.5)' }}>
                   Suggested Title
                 </p>
