@@ -271,3 +271,68 @@ body {
 /* Neo-brutalist (only for auth, via .auth-root) */
 .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
 .spinner-dark { border: 2px solid rgba(0,0,0,0.15); border-top-color: #000; border-radius: 50%; animation: spin 0.8s linear infinite; }
+
+/* ── AI Chat Panel slide-in ── */
+@keyframes chatPanelEnter {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);   opacity: 1; }
+}
+.ai-chat-panel-enter {
+  animation: chatPanelEnter 0.28s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* ── AI Toolbar fade+scale ── */
+@keyframes toolbarEnter {
+  from { opacity: 0; transform: translate(-50%, -90%) scale(0.92); }
+  to   { opacity: 1; transform: translate(-50%, -100%) scale(1); }
+}
+.ai-toolbar-enter {
+  animation: toolbarEnter 0.18s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* ── Typing dots ── */
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30%            { transform: translateY(-4px); opacity: 1; }
+}
+.typing-dot {
+  animation: typingBounce 1.2s ease infinite;
+}
+
+/* ── Per-message fade-in ── */
+@keyframes messageFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.message-fade-in {
+  animation: messageFadeIn 0.22s ease both;
+}
+
+/* ── Blinking cursor (typewriter) ── */
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+.typing-cursor {
+  animation: cursorBlink 0.7s step-end infinite;
+}
+
+/* ── Suggestion chips fade in ── */
+@keyframes suggestionsFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.suggestions-fade-in {
+  animation: suggestionsFadeIn 0.3s ease 0.1s both;
+}
+
+/* ── Premium AI toolbar dynamic fade-scale ── */
+@keyframes aiToolbarFadeIn {
+  from { opacity: 0; transform: translate(-50%, var(--y-trans, -100%)) scale(0.94); }
+  to   { opacity: 1; transform: translate(-50%, var(--y-trans, -100%)) scale(1); }
+}
+.ai-toolbar-fade {
+  animation: aiToolbarFadeIn 0.15s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+

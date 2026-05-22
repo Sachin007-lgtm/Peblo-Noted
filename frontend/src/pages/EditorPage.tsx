@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useNotesContext } from '../context/NotesContext';
+import AIContentToolbar from '../components/AIContentToolbar';
 
 const CATEGORIES = ['General', 'To-Do', 'Project Plan', 'Meeting Brief', 'Work', 'Drawing Note'];
 
@@ -23,6 +24,7 @@ export default function EditorPage() {
   const [aiExpanded, setAiExpanded] = useState(true);
   const [shareOpen, setShareOpen] = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const writingAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (note) {
@@ -72,6 +74,13 @@ export default function EditorPage() {
     setAiLoading(true);
     await notesStore.generateAISummary(id);
     setAiLoading(false);
+  };
+
+  // AI Content Actions — replace selected text in the textarea
+  const handleReplaceText = (original: string, replacement: string) => {
+    const newContent = content.replace(original, replacement);
+    setContent(newContent);
+    triggerSave(title, newContent, tags, category);
   };
 
 
@@ -125,13 +134,13 @@ export default function EditorPage() {
               Share
             </button>
 
-            {/* Toggle AI Panel */}
+            {/* Toggle Note Insights Panel */}
             <button
               onClick={() => setAiExpanded(!aiExpanded)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[13px] font-semibold transition-colors ${aiExpanded ? 'bg-purple-100 text-purple-700 border-purple-200' : 'bg-surface text-text-secondary border-border hover:border-purple-300 hover:text-purple-600'}`}
             >
-              <span className="material-symbols-outlined text-[16px]">dock_to_right</span>
-              {aiExpanded ? 'Close AI' : 'Open AI'}
+              <span className="material-symbols-outlined text-[16px]">insights</span>
+              {aiExpanded ? 'Close Insights' : 'Note Insights'}
             </button>
           </div>
         </div>
@@ -168,7 +177,7 @@ export default function EditorPage() {
         </div>
 
         {/* Writing area */}
-        <div className="flex-1 overflow-y-auto bg-surface">
+        <div className="flex-1 overflow-y-auto bg-surface" ref={writingAreaRef as React.RefObject<HTMLDivElement>}>
           <div className="max-w-4xl ml-8 lg:ml-16 px-4 py-8">
             <input
               className="w-full text-3xl font-bold text-text-primary bg-transparent border-none outline-none placeholder:text-text-muted mb-4 font-display"
@@ -184,15 +193,24 @@ export default function EditorPage() {
             />
           </div>
         </div>
+
+        {/* AI Content Toolbar — appears on text selection */}
+        <AIContentToolbar
+          containerRef={writingAreaRef as React.RefObject<HTMLElement>}
+          onReplaceText={handleReplaceText}
+        />
       </div>
 
-      {/* ── AI Assistant Panel ── */}
+      {/* ── Note Insights Panel ── */}
       {aiExpanded && (
         <aside className="w-96 shrink-0 bg-card border-l border-border flex flex-col overflow-hidden animate-fade-in">
           <div className="px-4 py-4 border-b border-border flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-purple-500 text-[20px]" style={{ fontVariationSettings:"'FILL' 1" }}>auto_awesome</span>
-              <h3 className="font-semibold text-[14px]">AI Assistant</h3>
+              <span className="material-symbols-outlined text-purple-500 text-[20px]" style={{ fontVariationSettings:"'FILL' 1" }}>insights</span>
+              <div>
+                <h3 className="font-semibold text-[14px]">Note Insights</h3>
+                <p className="text-[10px] text-text-muted">Summary, actions &amp; suggestions</p>
+              </div>
             </div>
             <button onClick={() => setAiExpanded(false)} className="text-text-muted hover:text-text-primary transition-colors">
               <span className="material-symbols-outlined text-[18px]">close</span>

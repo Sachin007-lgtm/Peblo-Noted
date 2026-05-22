@@ -177,6 +177,24 @@ export function useAuth() {
   return { user, login, signup, logout, loginWithOAuth, isAuthenticated: !!user, loading };
 }
 
+// ── Helper: generate text embedding vector from backend ────────────────────────
+async function generateEmbedding(text: string): Promise<number[] | null> {
+  try {
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+    const res = await fetch(`${backendUrl}/api/embeddings`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    });
+    if (!res.ok) throw new Error(`Backend embedding error: ${res.status}`);
+    const data = await res.json();
+    return data.embedding;
+  } catch (err) {
+    console.error('Failed to generate embedding:', err);
+    return null;
+  }
+}
+
 // ── Hook: useNotes ─────────────────────────────────────────────────────────────
 export function useNotes(userId: string | undefined) {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -253,6 +271,30 @@ export function useNotes(userId: string | undefined) {
     supabase.from('notes').update(finalUpdates).eq('note_id', id).then(({ error }) => {
       if (error) console.error('Error updating note:', error);
     });
+
+    // Generate and sync embedding in background if title/content is updated
+    if (updates.title !== undefined || updates.content !== undefined) {
+      setNotes((currentNotes) => {
+        const note = currentNotes.find((n) => n.note_id === id);
+        if (note) {
+          const textToEmbed = `${note.title || ''}\n${note.content || ''}`.trim();
+          if (textToEmbed.length > 5) {
+            generateEmbedding(textToEmbed).then((embedding) => {
+              if (embedding) {
+                supabase
+                  .from('notes')
+                  .update({ embedding })
+                  .eq('note_id', id)
+                  .then(({ error: embedErr }) => {
+                    if (embedErr) console.error('Error saving note embedding:', embedErr);
+                  });
+              }
+            });
+          }
+        }
+        return currentNotes;
+      });
+    }
   }, []);
 
   const deleteNote = useCallback((id: string) => {
@@ -365,6 +407,34 @@ export function useNotes(userId: string | undefined) {
     } as Note;
   }, [notes]);
 
+  const semanticSearch = useCallback(async (query: string): Promise<(Note & { similarity: number })[]> => {
+    if (!userId || !query.trim()) return [];
+    
+    const embedding = await generateEmbedding(query);
+    if (!embedding) return [];
+    
+    const { data, error } = await supabase.rpc('match_notes', {
+      query_embedding: embedding,
+      match_threshold: 0.25,
+      match_count: 15,
+      owner_id: userId
+    });
+    
+    if (error) {
+      console.error('Error in semantic search RPC:', error);
+      return [];
+    }
+    
+    if (data) {
+      return data.map((d: any) => ({
+        ...d,
+        userId: d.user_id,
+      })) as (Note & { similarity: number })[];
+    }
+    
+    return [];
+  }, [userId]);
+
   return {
     notes,
     aiLoading,
@@ -377,6 +447,7 @@ export function useNotes(userId: string | undefined) {
     generateShareLink,
     generateAISummary,
     getSharedNote,
+    semanticSearch,
   };
 }
 

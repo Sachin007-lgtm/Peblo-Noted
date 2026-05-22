@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import type { User } from '../types';
+import AIChatPanel from './AIChatPanel';
 
 interface LayoutProps {
   user: User;
@@ -14,6 +15,7 @@ export default function Layout({ user, onLogout, onCreateNote }: LayoutProps) {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const [notesExpanded, setNotesExpanded] = useState(true);
+  const [chatOpen, setChatOpen] = useState(false);
 
   const handleNewNote = () => {
     if (onCreateNote) {
@@ -187,8 +189,28 @@ export default function Layout({ user, onLogout, onCreateNote }: LayoutProps) {
             <NavLink to="/search" className="text-[13px] text-text-muted flex-1 outline-none bg-transparent">Search...</NavLink>
           </div>
 
-          {/* User chip (Profile only) */}
-          <div className="flex items-center gap-3">
+          {/* AI Chat + User chip */}
+          <div className="flex items-center gap-2">
+            {/* AI Chat Toggle */}
+            <button
+              id="ai-chat-toggle"
+              onClick={() => setChatOpen(o => !o)}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-[13px] font-semibold transition-all ${
+                chatOpen
+                  ? 'bg-violet-100 text-violet-700 border-violet-200'
+                  : 'bg-surface text-text-secondary border-border hover:border-violet-300 hover:text-violet-600'
+              }`}
+            >
+              <span
+                className="material-symbols-outlined text-[18px]"
+                style={{ fontVariationSettings: "'FILL' 1" }}
+              >
+                auto_awesome
+              </span>
+              <span className="hidden md:inline">Ask AI</span>
+            </button>
+
+            {/* User chip */}
             <button
               className="flex items-center gap-2 bg-surface hover:bg-border rounded-full pl-3 pr-2 py-1.5 border border-border transition-colors cursor-pointer"
             >
@@ -210,11 +232,17 @@ export default function Layout({ user, onLogout, onCreateNote }: LayoutProps) {
       {/* ── Floating New Note Button ── */}
       <button
         onClick={handleNewNote}
-        className="fixed bottom-6 right-6 flex items-center gap-2 bg-accent text-white rounded-full pl-5 pr-6 py-3.5 shadow-lg hover:bg-accent-dark transition-all hover:scale-105 active:scale-95 z-50 font-semibold text-[14px]"
+        className={`fixed bottom-6 flex items-center gap-2 bg-accent text-white rounded-full pl-5 pr-6 py-3.5 shadow-lg hover:bg-accent-dark transition-all hover:scale-105 active:scale-95 z-40 font-semibold text-[14px] ${
+          chatOpen ? 'right-[396px]' : 'right-6'
+        }`}
+        style={{ transition: 'right 0.3s cubic-bezier(0.4,0,0.2,1)' }}
       >
         <span className="material-symbols-outlined text-[20px]">add</span>
         New
       </button>
+
+      {/* ── AI Chat Panel ── */}
+      <AIChatPanel isOpen={chatOpen} onClose={() => setChatOpen(false)} />
     </div>
   );
 }
