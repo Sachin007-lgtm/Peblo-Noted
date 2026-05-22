@@ -158,7 +158,7 @@ export default function AIContentToolbar({ containerRef, onReplaceText }: AICont
 
         if (text.length < 2) { setVisible(false); return; }
 
-        const coords = getTextareaSelectionCoords(target, end);
+        const coords = getTextareaSelectionCoords(target as HTMLTextAreaElement, end);
         setRawLeft(coords.left);
         setAdjustedLeft(coords.left);
         setRawTop(coords.top);
