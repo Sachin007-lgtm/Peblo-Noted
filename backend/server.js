@@ -197,6 +197,123 @@ app.post('/api/embeddings', async (req, res) => {
   }
 });
 
+// ── POST /api/transcribe ──────────────────────────────────────────────────────
+// Body: { audio: string (base64), mimeType: string }
+// Transcribes audio via Groq Whisper, then summarizes via Llama 3
+app.post('/api/transcribe', async (req, res) => {
+  if (!process.env.GROQ_API_KEY) {
+    return res.status(500).json({ error: 'GROQ_API_KEY is not configured.' });
+  }
+
+  const { audio, mimeType = 'audio/webm' } = req.body;
+  if (!audio) {
+    return res.status(400).json({ error: 'audio (base64) is required' });
+  }
+
+  try {
+    // ── Step 1: Decode base64 to binary buffer ──
+    const audioBuffer = Buffer.from(audio, 'base64');
+
+    // ── Step 2: Build FormData with the audio blob ──
+    // Groq Whisper requires a file upload via multipart/form-data
+    const { default: FormData } = await import('form-data');
+    const formData = new FormData();
+
+    // Determine file extension from mimeType
+    const extMap = {
+      'audio/webm': 'webm',
+      'audio/ogg': 'ogg',
+      'audio/mp4': 'mp4',
+      'audio/mpeg': 'mp3',
+      'audio/wav': 'wav',
+    };
+    const ext = extMap[mimeType] || 'webm';
+
+    formData.append('file', audioBuffer, {
+      filename: `recording.${ext}`,
+      contentType: mimeType,
+    });
+    formData.append('model', 'whisper-large-v3');
+    formData.append('response_format', 'json');
+    formData.append('language', 'en');
+
+    // ── Step 3: Send to Groq Whisper API ──
+    const whisperRes = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+        ...formData.getHeaders(),
+      },
+      body: formData,
+    });
+
+    if (!whisperRes.ok) {
+      const errText = await whisperRes.text();
+      console.error('Groq Whisper Error:', errText);
+      return res.status(500).json({ error: `Whisper API error: ${whisperRes.status}`, details: errText });
+    }
+
+    const whisperData = await whisperRes.json();
+    const transcript = whisperData.text || '';
+
+    if (!transcript.trim()) {
+      return res.json({
+        transcript: '',
+        suggested_title: 'Meeting Notes',
+        summary: 'No speech was detected in the recording.',
+        action_items: [],
+      });
+    }
+
+    // ── Step 4: Summarize transcript with Llama 3 ──
+    const summaryPrompt = `You are a professional meeting notes assistant. Analyze the following meeting transcript and respond with ONLY a valid JSON object (no markdown fences, no extra text):
+{
+  "suggested_title": "A concise professional meeting title (max 8 words)",
+  "summary": "A rich, well-structured summary of what was discussed. Use paragraphs.",
+  "action_items": ["Clear actionable task 1", "Clear actionable task 2"]
+}
+
+RULES:
+1. The suggested_title should be short and descriptive (e.g. "Q2 Product Roadmap Discussion").
+2. The summary should be 2-4 sentences capturing key decisions and topics.
+3. action_items must be an array of simple strings — tasks that should be done after this meeting.
+4. Only output valid JSON. No markdown. No explanations outside the JSON.
+
+Meeting Transcript:
+${transcript.slice(0, 4000)}`;
+
+    const summaryText = await callGroq({
+      model: 'llama-3.3-70b-versatile',
+      temperature: 0.3,
+      max_tokens: 512,
+      messages: [
+        { role: 'system', content: 'You are a professional meeting notes assistant. Always respond with valid JSON only.' },
+        { role: 'user', content: summaryPrompt },
+      ],
+    });
+
+    // Parse the AI response
+    let parsed = { suggested_title: 'Meeting Notes', summary: transcript, action_items: [] };
+    try {
+      const cleaned = summaryText.replace(/```(?:json)?/g, '').replace(/```/g, '').trim();
+      parsed = JSON.parse(cleaned);
+    } catch (e) {
+      console.warn('Failed to parse summary JSON, using raw transcript.');
+    }
+
+    res.json({
+      transcript,
+      suggested_title: String(parsed.suggested_title || 'Meeting Notes'),
+      summary: String(parsed.summary || transcript),
+      action_items: Array.isArray(parsed.action_items) ? parsed.action_items.map(String) : [],
+    });
+
+  } catch (error) {
+    console.error('Transcription Error:', error);
+    res.status(500).json({ error: 'Failed to transcribe audio', details: String(error) });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Backend server running on port ${PORT}`);

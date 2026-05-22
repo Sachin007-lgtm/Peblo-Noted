@@ -254,6 +254,51 @@ export function useNotes(userId: string | undefined) {
     return note;
   }, [userId]);
 
+  const createNoteWithContent = useCallback((
+    title: string,
+    content: string,
+    category: string = 'Meeting Brief',
+    aiSummary?: AISummary,
+    tags: string[] = ['meeting', 'ai-transcribed']
+  ): Note => {
+    if (!userId) throw new Error('Not logged in');
+    const note: Note = {
+      note_id: `NOTE_${Date.now()}`,
+      userId,
+      title,
+      content,
+      tags,
+      category,
+      archived: false,
+      pinned: false,
+      isPublic: false,
+      updatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      ...(aiSummary ? { aiSummary } : {}),
+    };
+
+    setNotes((prev) => [note, ...prev]);
+
+    const { userId: _, ...dbNote } = note as any;
+    supabase.from('notes').insert({ ...dbNote, user_id: userId }).then(({ error }) => {
+      if (error) console.error('Error creating meeting note:', error);
+    });
+
+    // Generate embedding in background
+    const textToEmbed = `${title}\n${content}`.trim();
+    if (textToEmbed.length > 5) {
+      generateEmbedding(textToEmbed).then((embedding) => {
+        if (embedding) {
+          supabase.from('notes').update({ embedding }).eq('note_id', note.note_id).then(({ error: embedErr }) => {
+            if (embedErr) console.error('Error saving meeting note embedding:', embedErr);
+          });
+        }
+      });
+    }
+
+    return note;
+  }, [userId]);
+
   const updateNote = useCallback((id: string, updates: Partial<Note>) => {
     const updatedFields = { ...updates, updatedAt: new Date().toISOString() };
     
@@ -440,6 +485,7 @@ export function useNotes(userId: string | undefined) {
     aiLoading,
     aiUsageCount,
     createNote,
+    createNoteWithContent,
     updateNote,
     deleteNote,
     archiveNote,

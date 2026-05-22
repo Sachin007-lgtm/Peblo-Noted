@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useNotesContext } from '../context/NotesContext';
 import AIContentToolbar from '../components/AIContentToolbar';
+import MeetingRecorder from '../components/MeetingRecorder';
 
 const CATEGORIES = ['General', 'To-Do', 'Project Plan', 'Meeting Brief', 'Work', 'Drawing Note'];
 
@@ -133,6 +134,9 @@ export default function EditorPage() {
               <span className="material-symbols-outlined text-[16px]">share</span>
               Share
             </button>
+
+            {/* Meeting Recorder */}
+            <MeetingRecorder />
 
             {/* Toggle Note Insights Panel */}
             <button

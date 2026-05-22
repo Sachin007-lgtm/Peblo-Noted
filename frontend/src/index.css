@@ -335,4 +335,8 @@ body {
   animation: aiToolbarFadeIn 0.15s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
-
+/* ── Meeting Recorder waveform animation ── */
+@keyframes waveBar {
+  from { transform: scaleY(0.4); opacity: 0.6; }
+  to   { transform: scaleY(1.0); opacity: 1.0; }
+}
