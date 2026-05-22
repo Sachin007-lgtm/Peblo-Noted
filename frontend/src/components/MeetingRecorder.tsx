@@ -104,7 +104,7 @@ export default function MeetingRecorder() {
         if (e.data.size > 0) chunksRef.current.push(e.data);
       };
 
-      recorder.start(200); // collect data every 200ms
+      recorder.start(); // collect data when stopped
       setState('recording');
       setOverlayOpen(true);
 
@@ -132,12 +132,14 @@ export default function MeetingRecorder() {
   // ── Stop Recording & Transcribe ──
   const stopRecording = useCallback(() => {
     clearInterval(timerRef.current);
-    streamRef.current?.getTracks().forEach(t => t.stop());
 
     const recorder = mediaRecorderRef.current;
     if (!recorder || recorder.state === 'inactive') return;
 
     recorder.onstop = async () => {
+      // Stop mic tracks now that recorder has finished capturing
+      streamRef.current?.getTracks().forEach(t => t.stop());
+      
       setState('processing');
       try {
         const mimeType = recorder.mimeType || 'audio/webm';

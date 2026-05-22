@@ -482,7 +482,8 @@ export function useNotes(userId: string | undefined) {
 
   const suggestAITags = useCallback(async (title: string, content: string): Promise<string[]> => {
     try {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+      const backendUrl = import.meta.env.VITE_BACKEND_URL ? import.meta.env.VITE_BACKEND_URL : 'http://localhost:3000';
+      console.log('Fetching auto-tag from:', `${backendUrl}/api/auto-tag`);
       const res = await fetch(`${backendUrl}/api/auto-tag`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
