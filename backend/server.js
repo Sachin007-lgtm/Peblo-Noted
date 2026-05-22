@@ -314,6 +314,54 @@ ${transcript.slice(0, 4000)}`;
   }
 });
 
+// ── POST /api/auto-tag ─────────────────────────────────────────────────────────
+// Body: { title: string, content: string }
+app.post('/api/auto-tag', async (req, res) => {
+  if (!process.env.GROQ_API_KEY) {
+    return res.status(500).json({ error: 'GROQ_API_KEY is not configured.' });
+  }
+
+  const { title, content } = req.body;
+  if (!title && !content) {
+    return res.status(400).json({ error: 'title or content is required' });
+  }
+
+  const prompt = `Analyze this note and suggest 3 to 5 highly relevant, concise organizational tags (e.g. "meeting", "ideas", "todo", "project-x").
+Respond with ONLY a valid JSON object (no markdown, no extra text):
+{
+  "tags": ["tag1", "tag2", "tag3"]
+}
+
+Note Title: ${title || 'Untitled Note'}
+Note Content:
+${(content || '').replace(/<[^>]+>/g, ' ').slice(0, 3000)}`;
+
+  try {
+    const text = await callGroq({
+      model: 'llama-3.1-8b-instant',
+      temperature: 0.2,
+      max_tokens: 256,
+      messages: [
+        { role: 'system', content: 'You are a precise note-tagging assistant. Always respond with valid JSON only.' },
+        { role: 'user', content: prompt },
+      ],
+    });
+
+    let parsed = { tags: [] };
+    try {
+      const cleaned = text.replace(/```(?:json)?/g, '').replace(/```/g, '').trim();
+      parsed = JSON.parse(cleaned);
+    } catch (e) {
+      console.warn('Failed to parse auto-tag JSON:', text);
+    }
+
+    res.json({ tags: Array.isArray(parsed.tags) ? parsed.tags.map(String).slice(0, 5) : [] });
+  } catch (error) {
+    console.error('Auto-Tag Error:', error);
+    res.status(500).json({ error: 'Failed to generate tags' });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Backend server running on port ${PORT}`);

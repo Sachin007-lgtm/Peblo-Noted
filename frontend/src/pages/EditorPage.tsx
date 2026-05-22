@@ -24,6 +24,8 @@ export default function EditorPage() {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiExpanded, setAiExpanded] = useState(true);
   const [shareOpen, setShareOpen] = useState(false);
+  const [isTagging, setIsTagging] = useState(false);
+  const [suggestedTags, setSuggestedTags] = useState<string[]>([]);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const writingAreaRef = useRef<HTMLDivElement>(null);
 
@@ -82,6 +84,26 @@ export default function EditorPage() {
     const newContent = content.replace(original, replacement);
     setContent(newContent);
     triggerSave(title, newContent, tags, category);
+  };
+
+  const handleAutoTag = async () => {
+    if (!title && !content) return;
+    setIsTagging(true);
+    setSuggestedTags([]);
+    const generated = await notesStore.suggestAITags(title, content);
+    // Filter out tags that are already added
+    const newSuggestions = generated.filter(t => !tags.includes(t));
+    setSuggestedTags(newSuggestions);
+    setIsTagging(false);
+  };
+
+  const applySuggestedTag = (t: string) => {
+    if (!tags.includes(t)) {
+      const newTags = [...tags, t];
+      setTags(newTags);
+      triggerSave(title, content, newTags, category);
+    }
+    setSuggestedTags(prev => prev.filter(x => x !== t));
   };
 
 
@@ -161,22 +183,52 @@ export default function EditorPage() {
           </select>
 
           {/* Tags */}
-          <div className="flex items-center gap-1 flex-wrap">
-            {tags.map(t => (
-              <span key={t} className="tag-pill flex items-center gap-1">
-                {t}
-                <button onClick={() => removeTag(t)} className="ml-0.5 text-text-muted hover:text-danger transition-colors">
-                  <span className="material-symbols-outlined text-[12px]">close</span>
-                </button>
-              </span>
-            ))}
-            <input
-              className="text-[12px] border border-dashed border-border rounded-full px-2 py-0.5 w-28 outline-none focus:border-accent bg-transparent"
-              placeholder="Add tag…"
-              value={tagInput}
-              onChange={e => setTagInput(e.target.value)}
-              onKeyDown={handleAddTag}
-            />
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-1 flex-wrap">
+              {tags.map(t => (
+                <span key={t} className="tag-pill flex items-center gap-1">
+                  {t}
+                  <button onClick={() => removeTag(t)} className="ml-0.5 text-text-muted hover:text-danger transition-colors">
+                    <span className="material-symbols-outlined text-[12px]">close</span>
+                  </button>
+                </span>
+              ))}
+              <input
+                className="text-[12px] border border-dashed border-border rounded-full px-2 py-0.5 w-28 outline-none focus:border-accent bg-transparent"
+                placeholder="Add tag…"
+                value={tagInput}
+                onChange={e => setTagInput(e.target.value)}
+                onKeyDown={handleAddTag}
+              />
+              <button
+                onClick={handleAutoTag}
+                disabled={isTagging || (!title && !content)}
+                className={`ml-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border transition-all flex items-center gap-1 ${
+                  isTagging ? 'bg-purple-50 text-purple-400 border-purple-200' : 'bg-surface text-purple-600 border-purple-200 hover:bg-purple-50'
+                }`}
+              >
+                <span className={`material-symbols-outlined text-[13px] ${isTagging ? 'animate-spin' : ''}`}>
+                  {isTagging ? 'progress_activity' : 'auto_awesome'}
+                </span>
+                {isTagging ? 'Tagging…' : 'Auto-Tag'}
+              </button>
+            </div>
+            {/* Suggested Tags Row */}
+            {suggestedTags.length > 0 && (
+              <div className="flex items-center gap-1.5 flex-wrap animate-fade-in pl-1">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-purple-400 mr-1">Suggestions:</span>
+                {suggestedTags.map(t => (
+                  <button
+                    key={t}
+                    onClick={() => applySuggestedTag(t)}
+                    className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border border-dashed border-purple-300 text-purple-600 hover:bg-purple-50 hover:border-purple-400 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[12px]">add</span>
+                    {t}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

@@ -480,6 +480,23 @@ export function useNotes(userId: string | undefined) {
     return [];
   }, [userId]);
 
+  const suggestAITags = useCallback(async (title: string, content: string): Promise<string[]> => {
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+      const res = await fetch(`${backendUrl}/api/auto-tag`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, content }),
+      });
+      if (!res.ok) throw new Error(`Backend auto-tag error: ${res.status}`);
+      const data = await res.json();
+      return Array.isArray(data.tags) ? data.tags : [];
+    } catch (err) {
+      console.error('Failed to get suggested tags:', err);
+      return [];
+    }
+  }, []);
+
   return {
     notes,
     aiLoading,
@@ -494,6 +511,7 @@ export function useNotes(userId: string | undefined) {
     generateAISummary,
     getSharedNote,
     semanticSearch,
+    suggestAITags,
   };
 }
 
