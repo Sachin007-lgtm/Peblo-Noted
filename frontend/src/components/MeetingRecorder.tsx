@@ -390,6 +390,13 @@ export default function MeetingRecorder() {
                 <p className="text-[14px] font-bold text-white mb-3">{result.suggested_title}</p>
 
                 <p className="text-[11px] font-semibold uppercase tracking-widest mb-1.5" style={{ color: 'rgba(196,181,253,0.5)' }}>
+                  Transcript
+                </p>
+                <p className="text-[12px] leading-relaxed italic mb-3" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                  "{result.transcript.slice(0, 120)}{result.transcript.length > 120 ? '…' : ''}"
+                </p>
+
+                <p className="text-[11px] font-semibold uppercase tracking-widest mb-1.5" style={{ color: 'rgba(196,181,253,0.5)' }}>
                   Summary
                 </p>
                 <p className="text-[12px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.65)' }}>
