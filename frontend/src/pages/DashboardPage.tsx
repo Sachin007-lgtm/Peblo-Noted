@@ -38,7 +38,8 @@ function timeSince(dateStr: string) {
 
 export default function DashboardPage({ user, notes }: Props) {
   const navigate = useNavigate();
-  const [imgIndex, setImgIndex] = useState(() => Math.floor(Math.random() * HERO_IMAGES.length));
+  // Using a number to trigger a fresh random image fetch from picsum.photos
+  const [imgIndex, setImgIndex] = useState(() => Math.floor(Math.random() * 1000));
   
   const recentNotes = [...notes]
     .filter(n => !n.archived)
@@ -51,7 +52,7 @@ export default function DashboardPage({ user, notes }: Props) {
       <div 
         className="relative rounded-2xl overflow-hidden min-h-[320px] flex items-end p-6 shadow-sm border border-border transition-all duration-500 ease-in-out"
         style={{ 
-          backgroundImage: `url('${HERO_IMAGES[imgIndex]}')`, 
+          backgroundImage: `url('https://loremflickr.com/1200/400/landscape,nature?random=${imgIndex}')`, 
           backgroundSize: 'cover', 
           backgroundPosition: 'center 40%' 
         }}
@@ -71,11 +72,11 @@ export default function DashboardPage({ user, notes }: Props) {
         {/* Nav arrows */}
         <div className="absolute top-4 right-4 flex gap-2">
           <button 
-            onClick={() => setImgIndex((prev) => (prev + 1) % HERO_IMAGES.length)}
+            onClick={() => setImgIndex((prev) => prev + 1)}
             className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
-            title="Next Cover Image"
+            title="Load New Random Image"
           >
-            <span className="material-symbols-outlined text-[16px]">chevron_right</span>
+            <span className="material-symbols-outlined text-[16px]">refresh</span>
           </button>
         </div>
       </div>
@@ -88,7 +89,7 @@ export default function DashboardPage({ user, notes }: Props) {
           { label: 'Total Notes',   val: notes.filter(n=>!n.archived).length, icon: 'description',   color: '#4caf50' },
           { label: 'Pinned',        val: notes.filter(n=>n.pinned).length,     icon: 'push_pin',      color: '#3b82f6' },
           { label: 'AI Summaries',  val: notes.filter(n=>n.aiSummary).length,  icon: 'auto_awesome',  color: '#8b5cf6' },
-          { label: 'Shared',        val: notes.filter(n=>n.isPublic).length,   icon: 'public',        color: '#f59e0b' },
+          { label: 'Shared Links',  val: notes.filter(n=>n.isPublic).length,   icon: 'link',          color: '#f59e0b' },
         ].map(s => (
           <div key={s.label} className="bg-card rounded-xl border border-border p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: s.color + '18' }}>
@@ -146,7 +147,7 @@ export default function DashboardPage({ user, notes }: Props) {
                     <div className="flex items-center gap-2 mb-2">
                       <span className={`w-2 h-2 rounded-full shrink-0 ${cat.dot}`} />
                       <span className={`text-[11px] font-semibold ${cat.text} truncate`}>{note.category}</span>
-                      {note.isPublic && <span className="ml-auto material-symbols-outlined text-[14px] text-accent">public</span>}
+                      {note.isPublic && <span className="ml-auto material-symbols-outlined text-[14px] text-accent">link</span>}
                       {note.pinned && <span className="material-symbols-outlined text-[14px] text-blue-400">push_pin</span>}
                     </div>
 

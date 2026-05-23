@@ -115,7 +115,11 @@ The user is currently viewing this note. Answer questions about it directly.`;
     
     if (lastUserMessage) {
       const intentPrompt = `You are a web search router. 
-Determine if the following user message requires a real-time web search to answer accurately (e.g., current events, weather, stock prices, recent news, or factual lookups not in general knowledge).
+Determine if the user's message requires a real-time web search.
+You MUST return needsSearch: true for:
+1. Current events, news, or recent controversies (e.g., "NEET paper leak", "elections").
+2. Time-sensitive info (weather, stock prices, "this year's highlights", "latest").
+3. Specific facts that might not be in your pre-training data.
 User message: "${lastUserMessage.content}"
 Respond ONLY with a JSON object in this exact format:
 {"needsSearch": true/false, "query": "optimized search query if true"}`;
@@ -148,7 +152,7 @@ Respond ONLY with a JSON object in this exact format:
             const results = await tavilyRes.json();
             
             if (results.results && results.results.length > 0) {
-              searchResultsText = `\n\n## Real-Time Web Search Results\nThe following live web search results were found for the user's query. Use this information to answer the user accurately:\n\n`;
+              searchResultsText = `\n\n## 🌐 REAL-TIME WEB SEARCH RESULTS\nCRITICAL INSTRUCTION: You just performed a live web search for the user's query. You MUST use the following real-time information to answer their question with specific facts, dates, and details. Do NOT give a generic answer if search results are provided below:\n\n`;
               results.results.forEach((r, idx) => {
                 searchResultsText += `[${idx + 1}] Title: ${r.title}\nSnippet: ${r.content}\nURL: ${r.url}\n\n`;
               });

@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import type { User } from '../types';
 import AIChatPanel from './AIChatPanel';
+import ProfileModal from './ProfileModal';
+import OnboardingOverlay from './OnboardingOverlay';
 
 interface LayoutProps {
   user: User;
@@ -16,6 +18,7 @@ export default function Layout({ user, onLogout, onCreateNote }: LayoutProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [notesExpanded, setNotesExpanded] = useState(true);
   const [chatOpen, setChatOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   const handleNewNote = () => {
     if (onCreateNote) {
@@ -147,16 +150,6 @@ export default function Layout({ user, onLogout, onCreateNote }: LayoutProps) {
           </NavLink>
         </nav>
 
-        {/* Upgrade */}
-        {!collapsed && (
-          <div className="px-3 pt-4 border-t border-white/5">
-            <button className="w-full flex items-center gap-2 bg-accent/10 hover:bg-accent/20 text-accent rounded-lg px-4 py-3 text-[13px] font-semibold transition-colors">
-              <span className="material-symbols-outlined text-[18px]">emoji_events</span>
-              Upgrade your Plan
-            </button>
-          </div>
-        )}
-
         {/* Logout (Sidebar) */}
         <div className="px-3 pb-4 pt-2">
           <button 
@@ -191,34 +184,23 @@ export default function Layout({ user, onLogout, onCreateNote }: LayoutProps) {
 
           {/* AI Chat + User chip */}
           <div className="flex items-center gap-2">
-            {/* AI Chat Toggle */}
-            <button
-              id="ai-chat-toggle"
-              onClick={() => setChatOpen(o => !o)}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-[13px] font-semibold transition-all ${
-                chatOpen
-                  ? 'bg-violet-100 text-violet-700 border-violet-200'
-                  : 'bg-surface text-text-secondary border-border hover:border-violet-300 hover:text-violet-600'
-              }`}
-            >
-              <span
-                className="material-symbols-outlined text-[18px]"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                auto_awesome
-              </span>
-              <span className="hidden md:inline">Ask AI</span>
-            </button>
+            {/* AI Chat button moved to floating action area */}
 
             {/* User chip */}
             <button
-              className="flex items-center gap-2 bg-surface hover:bg-border rounded-full pl-3 pr-2 py-1.5 border border-border transition-colors cursor-pointer"
+              onClick={() => setProfileOpen(true)}
+              title="View Profile"
+              className="group flex items-center gap-2 bg-surface hover:bg-border rounded-full pl-3 pr-2 py-1.5 border border-border transition-all cursor-pointer"
             >
-              <div className="w-6 h-6 rounded-full bg-accent text-white text-[11px] font-bold flex items-center justify-center">
-                {user.name.charAt(0).toUpperCase()}
+              <div className="w-6 h-6 rounded-full bg-accent text-white text-[11px] font-bold flex items-center justify-center overflow-hidden">
+                {user.avatar ? (
+                  <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  user.name.charAt(0).toUpperCase()
+                )}
               </div>
               <span className="text-[13px] font-medium text-text-primary max-w-[100px] truncate">{user.name}</span>
-              <span className="material-symbols-outlined text-text-muted text-[16px]">person</span>
+              <span className="material-symbols-outlined text-text-muted text-[16px] group-hover:text-accent transition-colors">person</span>
             </button>
           </div>
         </header>
@@ -229,20 +211,68 @@ export default function Layout({ user, onLogout, onCreateNote }: LayoutProps) {
         </main>
       </div>
 
-      {/* ── Floating New Note Button ── */}
-      <button
-        onClick={handleNewNote}
-        className={`fixed bottom-6 flex items-center gap-2 bg-accent text-white rounded-full pl-5 pr-6 py-3.5 shadow-lg hover:bg-accent-dark transition-all hover:scale-105 active:scale-95 z-40 font-semibold text-[14px] ${
-          chatOpen ? 'right-[396px]' : 'right-6'
-        }`}
-        style={{ transition: 'right 0.3s cubic-bezier(0.4,0,0.2,1)' }}
+      {/* ── Floating Action Buttons ── */}
+      <div 
+        className={`fixed bottom-6 flex items-center gap-3 z-40`}
+        style={{ 
+          right: chatOpen ? '396px' : '24px',
+          transition: 'right 0.3s cubic-bezier(0.4,0,0.2,1)' 
+        }}
       >
-        <span className="material-symbols-outlined text-[20px]">add</span>
-        New
-      </button>
+        {/* Ask AI Floating Button */}
+        <button
+          id="ai-chat-toggle"
+          onClick={() => setChatOpen(o => !o)}
+          className={`flex items-center justify-center w-14 h-14 rounded-full shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 ${
+            chatOpen
+              ? 'bg-white border-2 border-violet-200 shadow-violet-200/50'
+              : 'bg-white border border-gray-100 hover:shadow-xl'
+          }`}
+          title="Ask AI"
+        >
+          {/* Custom Gradient Sparkle Icon (Google Gemini / Apple Intelligence style) */}
+          <svg viewBox="0 0 24 24" className={`w-8 h-8 transition-transform duration-500 ${chatOpen ? 'rotate-180 scale-110' : ''}`}>
+            <defs>
+              <linearGradient id="premium-ai-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#4F46E5" />   {/* Indigo */}
+                <stop offset="50%" stopColor="#9333EA" />  {/* Purple */}
+                <stop offset="100%" stopColor="#06B6D4" /> {/* Cyan */}
+              </linearGradient>
+            </defs>
+            <path 
+              fill="url(#premium-ai-gradient)" 
+              d="M10.5 0C10.5 5.8 15.2 10.5 21 10.5C15.2 10.5 10.5 15.2 10.5 21C10.5 15.2 5.8 10.5 0 10.5C5.8 10.5 10.5 5.8 10.5 0Z" 
+            />
+            <path 
+              fill="url(#premium-ai-gradient)" 
+              d="M19 13C19 15.21 20.79 17 23 17C20.79 17 19 18.79 19 21C19 18.79 17.21 17 15 17C17.21 17 19 15.21 19 13Z" 
+            />
+          </svg>
+        </button>
+
+        {/* Floating New Note Button */}
+        <button
+          onClick={handleNewNote}
+          className="flex items-center justify-center w-14 h-14 bg-accent text-white rounded-full shadow-lg hover:bg-accent-dark transition-all hover:scale-105 active:scale-95"
+          title="New Note"
+        >
+          <span className="material-symbols-outlined text-[24px]">add</span>
+        </button>
+      </div>
 
       {/* ── AI Chat Panel ── */}
       <AIChatPanel isOpen={chatOpen} onClose={() => setChatOpen(false)} />
+
+      {/* ── Profile Modal ── */}
+      <ProfileModal 
+        user={user} 
+        isOpen={profileOpen} 
+        onClose={() => setProfileOpen(false)} 
+        onLogout={onLogout} 
+      />
+
+      {/* ── Onboarding Tour (Shows once on first login) ── */}
+      <OnboardingOverlay />
     </div>
   );
 }

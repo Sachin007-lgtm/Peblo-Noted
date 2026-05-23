@@ -158,7 +158,7 @@ export default function MyNotesPage({ notes, onCreateNote, onDeleteNote, onToggl
         {/* Filter chips */}
         <div className="flex items-center gap-2">
           <span className="text-[11px] text-text-muted font-semibold uppercase tracking-wider">Filter:</span>
-          {([['all','All'],['pinned','Pinned'],['shared','Public'],['ai','AI Summarized']] as [FilterKey,string][]).map(([k,l]) => (
+          {([['all','All'],['pinned','Pinned'],['shared','Shared Links'],['ai','AI Summarized']] as [FilterKey,string][]).map(([k,l]) => (
             <button
               key={k}
               onClick={() => setFilter(k)}
@@ -229,7 +229,7 @@ function NoteCard({ note, idx, onOpen, onPin, onDelete, onArchive, menuOpen, set
           <span className={`w-2 h-2 rounded-full shrink-0 ${cat.dot}`} />
           <span className={`text-[11px] font-semibold ${cat.text} flex-1 truncate`}>{note.category}</span>
           {note.pinned    && <span className="material-symbols-outlined text-[14px] text-blue-400" style={{ fontVariationSettings:"'FILL' 1" }}>push_pin</span>}
-          {note.isPublic  && <span className="material-symbols-outlined text-[14px] text-green-500" style={{ fontVariationSettings:"'FILL' 1" }}>public</span>}
+          {note.isPublic  && <span className="material-symbols-outlined text-[14px] text-green-500" style={{ fontVariationSettings:"'FILL' 1" }}>link</span>}
           {/* Context menu */}
           <div className="relative" onClick={e => e.stopPropagation()}>
             <button

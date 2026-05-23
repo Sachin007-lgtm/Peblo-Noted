@@ -369,7 +369,7 @@ export default function EditorPage() {
               </button>
             </div>
             <div className="flex items-center justify-between py-3 border-t border-border">
-              <span className="text-[13px] font-medium text-text-primary">Note is Public</span>
+              <span className="text-[13px] font-medium text-text-primary">Link Sharing On</span>
               <div className={`w-10 h-5 rounded-full relative transition-colors cursor-pointer ${note.isPublic ? 'bg-accent' : 'bg-border'}`} onClick={() => note.isPublic && notesStore.updateNote(id!, { isPublic: false, shareId: undefined })}>
                 <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${note.isPublic ? 'right-0.5' : 'left-0.5'}`} />
               </div>

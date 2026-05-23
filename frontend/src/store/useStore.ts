@@ -111,6 +111,7 @@ export function useAuth() {
           id: session.user.id,
           name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
           email: session.user.email || '',
+          avatar: session.user.user_metadata?.avatar,
           createdAt: session.user.created_at,
         });
       } else {
@@ -126,6 +127,7 @@ export function useAuth() {
           id: session.user.id,
           name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
           email: session.user.email || '',
+          avatar: session.user.user_metadata?.avatar,
           createdAt: session.user.created_at,
         });
       } else {
@@ -134,6 +136,18 @@ export function useAuth() {
     });
 
     return () => subscription.unsubscribe();
+  }, []);
+
+  const updateProfile = useCallback(async (data: { name?: string; avatar?: string }) => {
+    const { error } = await supabase.auth.updateUser({
+      data: { ...data }
+    });
+    if (error) {
+      console.error('Failed to update profile:', error);
+      return { success: false, error: error.message };
+    }
+    // Session state change listener will automatically update the `user` state
+    return { success: true };
   }, []);
 
   const login = useCallback(async (email: string, password: string): Promise<{ success: boolean, error?: string }> => {
@@ -174,7 +188,7 @@ export function useAuth() {
     await supabase.auth.signOut();
   }, []);
 
-  return { user, login, signup, logout, loginWithOAuth, isAuthenticated: !!user, loading };
+  return { user, login, signup, logout, updateProfile, loginWithOAuth, isAuthenticated: !!user, loading };
 }
 
 // ── Helper: generate text embedding vector from backend ────────────────────────
@@ -212,6 +226,7 @@ export function useNotes(userId: string | undefined) {
       const { data, error } = await supabase
         .from('notes')
         .select('*')
+        .eq('user_id', userId)
         .order('updatedAt', { ascending: false });
       
       if (error) {
