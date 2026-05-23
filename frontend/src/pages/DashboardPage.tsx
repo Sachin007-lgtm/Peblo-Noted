@@ -7,16 +7,6 @@ interface Props {
   notes: Note[];
 }
 
-const HERO_IMAGES = [
-  'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200&q=80',
-  'https://images.unsplash.com/photo-1517842645767-c639042777db?w=1200&q=80',
-  'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&q=80',
-  'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&q=80',
-  'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&q=80',
-  'https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=1200&q=80',
-  'https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=1200&q=80',
-];
-
 
 const CAT_COLORS: Record<string, { dot: string; text: string; bg: string }> = {
   'To-Do':         { dot: 'bg-blue-400',   text: 'text-blue-600',   bg: 'bg-blue-50'   },
