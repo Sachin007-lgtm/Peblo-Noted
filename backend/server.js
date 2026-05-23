@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import fetch from 'node-fetch';
+import google from 'googlethis';
 import 'dotenv/config';
 import { pipeline } from '@xenova/transformers';
 
@@ -107,8 +108,59 @@ Content: ${cleanContent || '(empty)'}
 The user is currently viewing this note. Answer questions about it directly.`;
   }
 
-
   try {
+    // ── Web Search Intent Detection ──
+    const lastUserMessage = messages.filter(m => m.role === 'user').pop();
+    let searchResultsText = '';
+    
+    if (lastUserMessage) {
+      const intentPrompt = `You are a web search router. 
+Determine if the following user message requires a real-time web search to answer accurately (e.g., current events, weather, stock prices, recent news, or factual lookups not in general knowledge).
+User message: "${lastUserMessage.content}"
+Respond ONLY with a JSON object in this exact format:
+{"needsSearch": true/false, "query": "optimized search query if true"}`;
+
+      const intentReply = await callGroq({
+        model: 'llama-3.1-8b-instant',
+        temperature: 0.1,
+        max_tokens: 100,
+        messages: [{ role: 'user', content: intentPrompt }],
+      });
+
+      try {
+        const intent = JSON.parse(intentReply);
+        if (intent.needsSearch && intent.query) {
+          console.log(`Web search triggered: "${intent.query}"`);
+          
+          if (!process.env.TAVILY_API_KEY) {
+            console.error('TAVILY_API_KEY is not configured.');
+          } else {
+            const tavilyRes = await fetch('https://api.tavily.com/search', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                api_key: process.env.TAVILY_API_KEY,
+                query: intent.query,
+                search_depth: 'basic',
+                max_results: 4
+              })
+            });
+            const results = await tavilyRes.json();
+            
+            if (results.results && results.results.length > 0) {
+              searchResultsText = `\n\n## Real-Time Web Search Results\nThe following live web search results were found for the user's query. Use this information to answer the user accurately:\n\n`;
+              results.results.forEach((r, idx) => {
+                searchResultsText += `[${idx + 1}] Title: ${r.title}\nSnippet: ${r.content}\nURL: ${r.url}\n\n`;
+              });
+              systemPrompt += searchResultsText;
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Search Intent/Execution Error:', e);
+      }
+    }
+
     const reply = await callGroq({
       model: 'llama-3.3-70b-versatile',
       temperature: 0.7,
