@@ -233,7 +233,8 @@ export default function AIContentToolbar({ containerRef, onReplaceText }: AICont
     setShowResult(false);
     setResult('');
     try {
-      const res = await fetch('http://localhost:3000/api/content-action', {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+      const res = await fetch(`${backendUrl}/api/content-action`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: selectedText, action: actionId }),
