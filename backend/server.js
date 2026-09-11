@@ -11,7 +11,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // ── Helper: call Groq ─────────────────────────────────────────────────────────
-async function callGroq({ messages, model = 'llama-3.3-70b-versatile', temperature = 0.7, max_tokens = 1024 }) {
+async function callGroq({ messages, model = 'gpt-oss-120b', temperature = 0.7, max_tokens = 1024 }) {
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -51,7 +51,6 @@ ${(content || '').replace(/<[^>]+>/g, ' ').slice(0, 3000)}`;
 
   try {
     const text = await callGroq({
-      model: 'llama-3.1-8b-instant',
       temperature: 0.3,
       max_tokens: 512,
       messages: [
@@ -66,7 +65,7 @@ ${(content || '').replace(/<[^>]+>/g, ' ').slice(0, 3000)}`;
   }
 });
 
-// ── POST /api/chat ────────────────────────────────────────────────────────────
+// ── POST /api/chat ──────────────────────────────────────────────────────────�[...]
 // Body: { messages: [{role, content}], noteContext?: {title, content} }
 app.post('/api/chat', async (req, res) => {
   if (!process.env.GROQ_API_KEY) {
@@ -125,7 +124,6 @@ Respond ONLY with a JSON object in this exact format:
 {"needsSearch": true/false, "query": "optimized search query if true"}`;
 
       const intentReply = await callGroq({
-        model: 'llama-3.1-8b-instant',
         temperature: 0.1,
         max_tokens: 100,
         messages: [{ role: 'user', content: intentPrompt }],
@@ -152,7 +150,7 @@ Respond ONLY with a JSON object in this exact format:
             const results = await tavilyRes.json();
             
             if (results.results && results.results.length > 0) {
-              searchResultsText = `\n\n## 🌐 REAL-TIME WEB SEARCH RESULTS\nCRITICAL INSTRUCTION: You just performed a live web search for the user's query. You MUST use the following real-time information to answer their question with specific facts, dates, and details. Do NOT give a generic answer if search results are provided below:\n\n`;
+              searchResultsText = `\n\n## 🌐 REAL-TIME WEB SEARCH RESULTS\nCRITICAL INSTRUCTION: You just performed a live web search for the user's query. You MUST use the following real-time infor[...]
               results.results.forEach((r, idx) => {
                 searchResultsText += `[${idx + 1}] Title: ${r.title}\nSnippet: ${r.content}\nURL: ${r.url}\n\n`;
               });
@@ -166,7 +164,6 @@ Respond ONLY with a JSON object in this exact format:
     }
 
     const reply = await callGroq({
-      model: 'llama-3.3-70b-versatile',
       temperature: 0.7,
       max_tokens: 1024,
       messages: [
@@ -212,7 +209,6 @@ app.post('/api/content-action', async (req, res) => {
 
   try {
     const result = await callGroq({
-      model: 'llama-3.1-8b-instant',
       temperature: 0.5,
       max_tokens: 512,
       messages: [
@@ -340,7 +336,6 @@ Meeting Transcript:
 ${transcript.slice(0, 4000)}`;
 
     const summaryText = await callGroq({
-      model: 'llama-3.3-70b-versatile',
       temperature: 0.3,
       max_tokens: 512,
       messages: [
@@ -395,7 +390,6 @@ ${(content || '').replace(/<[^>]+>/g, ' ').slice(0, 3000)}`;
 
   try {
     const text = await callGroq({
-      model: 'llama-3.1-8b-instant',
       temperature: 0.2,
       max_tokens: 256,
       messages: [
