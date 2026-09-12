@@ -65,7 +65,7 @@ ${(content || '').replace(/<[^>]+>/g, ' ').slice(0, 3000)}`;
   }
 });
 
-// ── POST /api/chat ──────────────────────────────────────────────────────────�[...]
+// ── POST /api/chat ─────────────────────────────────────────────────────────────
 // Body: { messages: [{role, content}], noteContext?: {title, content} }
 app.post('/api/chat', async (req, res) => {
   if (!process.env.GROQ_API_KEY) {
@@ -111,9 +111,9 @@ The user is currently viewing this note. Answer questions about it directly.`;
     // ── Web Search Intent Detection ──
     const lastUserMessage = messages.filter(m => m.role === 'user').pop();
     let searchResultsText = '';
-    
+
     if (lastUserMessage) {
-      const intentPrompt = `You are a web search router. 
+      const intentPrompt = `You are a web search router.
 Determine if the user's message requires a real-time web search.
 You MUST return needsSearch: true for:
 1. Current events, news, or recent controversies (e.g., "NEET paper leak", "elections").
@@ -133,7 +133,7 @@ Respond ONLY with a JSON object in this exact format:
         const intent = JSON.parse(intentReply);
         if (intent.needsSearch && intent.query) {
           console.log(`Web search triggered: "${intent.query}"`);
-          
+
           if (!process.env.TAVILY_API_KEY) {
             console.error('TAVILY_API_KEY is not configured.');
           } else {
@@ -144,13 +144,13 @@ Respond ONLY with a JSON object in this exact format:
                 api_key: process.env.TAVILY_API_KEY,
                 query: intent.query,
                 search_depth: 'basic',
-                max_results: 4
-              })
+                max_results: 4,
+              }),
             });
             const results = await tavilyRes.json();
-            
+
             if (results.results && results.results.length > 0) {
-              searchResultsText = `\n\n## 🌐 REAL-TIME WEB SEARCH RESULTS\nCRITICAL INSTRUCTION: You just performed a live web search for the user's query. You MUST use the following real-time infor[...]
+              searchResultsText = `\n\n## 🌐 REAL-TIME WEB SEARCH RESULTS\nCRITICAL INSTRUCTION: You just performed a live web search for the user's query. You MUST use the following real-time information as source-of-truth when answering.\n\n`;
               results.results.forEach((r, idx) => {
                 searchResultsText += `[${idx + 1}] Title: ${r.title}\nSnippet: ${r.content}\nURL: ${r.url}\n\n`;
               });
@@ -318,7 +318,7 @@ app.post('/api/transcribe', async (req, res) => {
       });
     }
 
-    // ── Step 4: Summarize transcript with Llama 3 ──
+    // ── Step 4: Summarize transcript
     const summaryPrompt = `You are a professional meeting notes assistant. Analyze the following meeting transcript and respond with ONLY a valid JSON object (no markdown fences, no extra text):
 {
   "suggested_title": "A concise professional meeting title (max 8 words)",
